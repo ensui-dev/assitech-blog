@@ -95,10 +95,10 @@ export class AssitechComputeStack extends cdk.Stack {
     // Load user data script
     const userDataScript = readFileSync(join(__dirname, '../scripts/user-data.sh'), 'utf8');
 
-    // Replace placeholders in user data
+    // Replace placeholders in user data (use regex with global flag for variables that appear multiple times)
     const processedUserData = userDataScript
-      .replace('{{AWS_REGION}}', this.region)
-      .replace('{{AWS_ACCOUNT_ID}}', this.account)
+      .replace(/\{\{AWS_REGION\}\}/g, this.region)
+      .replace(/\{\{AWS_ACCOUNT_ID\}\}/g, this.account)
       .replace('{{BACKEND_REPO}}', props.backendRepository.repositoryUri)
       .replace('{{FRONTEND_REPO}}', props.frontendRepository.repositoryUri)
       .replace('{{DB_HOST}}', props.database.dbInstanceEndpointAddress)

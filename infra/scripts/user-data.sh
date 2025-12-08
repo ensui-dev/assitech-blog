@@ -51,16 +51,16 @@ APP_SECRET=$(aws secretsmanager get-secret-value \
   --query SecretString \
   --output text)
 
-# Extract credentials
-DB_USERNAME=$(echo $DB_SECRET | jq -r .username)
-DB_PASSWORD=$(echo $DB_SECRET | jq -r .password)
-HUGGINGFACE_API_KEY=$(echo $APP_SECRET | jq -r .HUGGINGFACE_API_KEY)
-HUGGINGFACE_MODEL=$(echo $APP_SECRET | jq -r .HUGGINGFACE_MODEL)
-UNSPLASH_ACCESS_KEY=$(echo $APP_SECRET | jq -r .UNSPLASH_ACCESS_KEY)
-JWT_SECRET=$(echo $APP_SECRET | jq -r .JWT_SECRET)
-ADMIN_EMAIL=$(echo $APP_SECRET | jq -r .ADMIN_EMAIL)
-ADMIN_PASSWORD=$(echo $APP_SECRET | jq -r .ADMIN_PASSWORD)
-ARTICLE_GENERATION_CRON=$(echo $APP_SECRET | jq -r .ARTICLE_GENERATION_CRON)
+# Extract credentials (quote properly to prevent glob expansion)
+DB_USERNAME=$(echo "$DB_SECRET" | jq -r .username)
+DB_PASSWORD=$(echo "$DB_SECRET" | jq -r .password)
+HUGGINGFACE_API_KEY=$(echo "$APP_SECRET" | jq -r .HUGGINGFACE_API_KEY)
+HUGGINGFACE_MODEL=$(echo "$APP_SECRET" | jq -r .HUGGINGFACE_MODEL)
+UNSPLASH_ACCESS_KEY=$(echo "$APP_SECRET" | jq -r .UNSPLASH_ACCESS_KEY)
+JWT_SECRET=$(echo "$APP_SECRET" | jq -r .JWT_SECRET)
+ADMIN_EMAIL=$(echo "$APP_SECRET" | jq -r .ADMIN_EMAIL)
+ADMIN_PASSWORD=$(echo "$APP_SECRET" | jq -r .ADMIN_PASSWORD)
+ARTICLE_GENERATION_CRON=$(echo "$APP_SECRET" | jq -r .ARTICLE_GENERATION_CRON)
 
 # Create application directory
 mkdir -p /opt/assitech
@@ -115,7 +115,7 @@ services:
       retries: 3
 EOF
 
-# Create .env file
+# Create .env file (quote values that may contain special characters)
 cat > .env <<EOF
 DB_USERNAME=${DB_USERNAME}
 DB_PASSWORD=${DB_PASSWORD}
@@ -125,7 +125,7 @@ UNSPLASH_ACCESS_KEY=${UNSPLASH_ACCESS_KEY}
 JWT_SECRET=${JWT_SECRET}
 ADMIN_EMAIL=${ADMIN_EMAIL}
 ADMIN_PASSWORD=${ADMIN_PASSWORD}
-ARTICLE_GENERATION_CRON=${ARTICLE_GENERATION_CRON}
+ARTICLE_GENERATION_CRON="${ARTICLE_GENERATION_CRON}"
 EOF
 
 # Authenticate Docker to ECR
