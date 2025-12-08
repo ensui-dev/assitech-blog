@@ -1,0 +1,63 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - echo "Using ECR repositories from environment variables"
+      - echo "Backend - $BACKEND_REPO_URI"
+      - echo "Frontend - $FRONTEND_REPO_URI"
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Build started on `date`
+
+  build:
+    commands:
+      - echo Building Docker images...
+
+      # Build backend
+      - echo Building backend image...
+      - cd backend
+      - docker build -t $BACKEND_REPO_URI:latest .
+      - docker tag $BACKEND_REPO_URI:latest $BACKEND_REPO_URI:$IMAGE_TAG
+      - cd ..
+
+      # Build frontend
+      - echo Building frontend image...
+      - cd frontend
+      - docker build -t $FRONTEND_REPO_URI:latest .
+      - docker tag $FRONTEND_REPO_URI:latest $FRONTEND_REPO_URI:$IMAGE_TAG
+      - cd ..
+
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing Docker images to ECR...
+
+      # Push backend images
+      - docker push $BACKEND_REPO_URI:latest
+      - docker push $BACKEND_REPO_URI:$IMAGE_TAG
+
+      # Push frontend images
+      - docker push $FRONTEND_REPO_URI:latest
+      - docker push $FRONTEND_REPO_URI:$IMAGE_TAG
+
+      - echo Images pushed successfully!
+      - echo Backend - $BACKEND_REPO_URI:latest
+      - echo Backend - $BACKEND_REPO_URI:$IMAGE_TAG
+      - echo Frontend - $FRONTEND_REPO_URI:latest
+      - echo Frontend - $FRONTEND_REPO_URI:$IMAGE_TAG
+
+      - echo Writing image definitions file...
+      - printf '[{"name":"backend","imageUri":"%s"},{"name":"frontend","imageUri":"%s"}]' $BACKEND_REPO_URI:$IMAGE_TAG $FRONTEND_REPO_URI:$IMAGE_TAG > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
+    - infra/scripts/*
+
+cache:
+  paths:
+    - '/root/.npm/**/*'
