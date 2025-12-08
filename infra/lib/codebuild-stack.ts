@@ -19,27 +19,22 @@ export class AssitechCodeBuildStack extends cdk.Stack {
     const githubBranch = process.env.GITHUB_BRANCH || 'main';
     const githubToken = process.env.GITHUB_TOKEN;
 
-    // CodeBuild project
+    // CodeBuild project with GitHub webhook for automatic builds
     this.buildProject = new codebuild.Project(this, 'BuildProject', {
       projectName: 'assitech-blog-build',
       description: 'Builds and pushes AssiTech Docker images to ECR',
 
-      // Source from GitHub
-      source: githubToken
-        ? codebuild.Source.gitHub({
-            owner: githubRepo.split('/')[0],
-            repo: githubRepo.split('/')[1],
-            webhook: true,
-            webhookFilters: [
-              codebuild.FilterGroup.inEventOf(
-                codebuild.EventAction.PUSH,
-              ).andBranchIs(githubBranch),
-            ],
-          })
-        : codebuild.Source.gitHub({
-            owner: githubRepo.split('/')[0],
-            repo: githubRepo.split('/')[1],
-          }),
+      // Source from GitHub with webhook for auto-builds on push
+      source: codebuild.Source.gitHub({
+        owner: githubRepo.split('/')[0],
+        repo: githubRepo.split('/')[1],
+        webhook: true,
+        webhookFilters: [
+          codebuild.FilterGroup.inEventOf(
+            codebuild.EventAction.PUSH,
+          ).andBranchIs(githubBranch),
+        ],
+      }),
 
       // Build environment
       environment: {
