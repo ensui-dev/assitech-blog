@@ -4,13 +4,14 @@ import unsplashClient from './unsplashClient.js';
 
 dotenv.config();
 
-const HUGGINGFACE_API_URL = 'https://router.huggingface.co/hf-inference/models/';
+const HUGGINGFACE_API_URL = 'https://router.huggingface.co/v1/chat/completions';
 const API_KEY = process.env.HUGGINGFACE_API_KEY;
 const MODEL = process.env.HUGGINGFACE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct';
 
 class AIClient {
   constructor() {
-    this.apiUrl = `${HUGGINGFACE_API_URL}${MODEL}`;
+    this.apiUrl = HUGGINGFACE_API_URL;
+    this.model = MODEL;
     this.headers = {
       'Authorization': `Bearer ${API_KEY}`,
       'Content-Type': 'application/json',
@@ -22,19 +23,19 @@ class AIClient {
       const response = await axios.post(
         this.apiUrl,
         {
-          inputs: prompt,
-          parameters: {
-            max_new_tokens: maxTokens,
-            temperature: 0.7,
-            top_p: 0.95,
-            return_full_text: false,
-          },
+          model: this.model,
+          messages: [
+            { role: 'user', content: prompt }
+          ],
+          max_tokens: maxTokens,
+          temperature: 0.7,
+          top_p: 0.95,
         },
         { headers: this.headers }
       );
 
-      if (response.data && response.data[0] && response.data[0].generated_text) {
-        return response.data[0].generated_text;
+      if (response.data && response.data.choices && response.data.choices[0] && response.data.choices[0].message) {
+        return response.data.choices[0].message.content;
       }
 
       throw new Error('Invalid response from HuggingFace API');
