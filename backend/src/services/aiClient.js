@@ -105,8 +105,14 @@ Article:`;
       const content = await this.generateText(prompt, 1200);
 
       // Generate a summary
-      const summaryPrompt = `Summarize the following article in 2-3 sentences:\n\n${content}\n\nSummary:`;
-      const summary = await this.generateText(summaryPrompt, 150);
+      const summaryPrompt = `Summarize the following article in 2-3 sentences. Return ONLY the summary text, no preamble or labels:\n\n${content}\n\nSummary:`;
+      let summary = await this.generateText(summaryPrompt, 150);
+
+      // Strip common AI preamble patterns from summary
+      summary = summary
+        .replace(/^(Here is a|Here's a|This is a).*?summary.*?:\s*/i, '')
+        .replace(/^Summary:\s*/i, '')
+        .trim();
 
       // Get image from Unsplash
       const image_url = await unsplashClient.getImageForArticle(selectedTopic);
