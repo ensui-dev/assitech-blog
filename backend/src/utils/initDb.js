@@ -90,8 +90,8 @@ async function initializeDatabase() {
     await User.createTable();
 
     // Create default admin user if no users exist
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@assitech.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@assitech.challenge';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'Admin123@';
 
     const existingAdmin = await User.findByEmail(adminEmail);
 

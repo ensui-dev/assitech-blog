@@ -71,33 +71,47 @@ Set up GitHub for automated CI/CD with CodeBuild:
    GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
    ```
 
-### 5. Deploy Infrastructure
+### 5. Deploy Infrastructure (Two-Phase Deployment)
 
-Deploy all AWS resources:
+**IMPORTANT**: Deploy in two phases to ensure Docker images exist before EC2 starts.
+
+#### Phase 1: Deploy infrastructure WITHOUT compute stack
 
 ```bash
-npm run deploy
+npx cdk deploy assitech-network-prod assitech-ecr-prod assitech-database-prod assitech-codebuild-prod --require-approval never
 ```
 
-This creates all 5 stacks:
+This creates:
 - Network (VPC, subnets, security groups)
 - ECR (container registries)
-- CodeBuild (CI/CD pipeline)
 - Database (RDS PostgreSQL)
-- Compute (EC2 instance)
+- CodeBuild (CI/CD pipeline)
 
 ### 6. Build and Push Docker Images
 
 Trigger CodeBuild to build your Docker images:
 
 ```bash
-aws codebuild start-build --project-name assitech-blog-build
+aws codebuild start-build --project-name assitech-blog-build --region eu-west-3
 ```
 
-Monitor the build in AWS Console:
-- CodeBuild → Build projects → assitech-blog-build → Build history
+Wait for the build to complete:
+```bash
+# Check build status (wait for SUCCEEDED)
+aws codebuild list-builds-for-project --project-name assitech-blog-build --region eu-west-3 --query 'ids[0]' --output text | xargs -I {} aws codebuild batch-get-builds --ids {} --region eu-west-3 --query 'builds[0].buildStatus' --output text
+```
 
-After build completes, CodeBuild automatically pushes images to ECR.
+Monitor in AWS Console: CodeBuild → Build projects → assitech-blog-build → Build history
+
+#### Phase 2: Deploy compute stack AFTER images are ready
+
+```bash
+npx cdk deploy assitech-compute-prod --require-approval never
+```
+
+This ensures the EC2 instance can pull Docker images from ECR when it starts.
+
+> **Why two phases?** The EC2 user-data script runs on first boot and tries to pull Docker images from ECR. If images don't exist yet, the script fails and containers won't start. By building images first, the EC2 instance can successfully pull and run them on startup.
 
 ## Detailed Setup
 
@@ -134,7 +148,7 @@ DB_NAME=blogdb
 
 # HuggingFace API (get from https://huggingface.co/settings/tokens)
 HUGGINGFACE_API_KEY=hf_your_key_here
-HUGGINGFACE_MODEL=microsoft/Phi-3-mini-4k-instruct
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct
 
 # Unsplash API (optional, get from https://unsplash.com/developers)
 UNSPLASH_ACCESS_KEY=your_key
@@ -147,7 +161,9 @@ ADMIN_EMAIL=admin@assitech.challenge
 ADMIN_PASSWORD=YourAdminPassword123!
 ```
 
-### Step 4: Deploy
+### Step 4: Deploy (Two-Phase Process)
+
+**IMPORTANT**: Deploy in two phases to ensure Docker images exist before EC2 starts.
 
 ```bash
 # From the infra directory
@@ -158,19 +174,42 @@ npm install
 
 # Bootstrap CDK (first time only)
 npx cdk bootstrap
-
-# Build and push Docker images to ECR
-./scripts/build-and-push.sh
-
-# Deploy all stacks
-npm run deploy
 ```
 
-The deployment process will:
-1. Create VPC and networking
-2. Create ECR repositories
-3. Create RDS database
-4. Create EC2 instance and configure
+#### Phase 1: Deploy infrastructure WITHOUT compute stack
+
+```bash
+npx cdk deploy assitech-network-prod assitech-ecr-prod assitech-database-prod assitech-codebuild-prod --require-approval never
+```
+
+This creates:
+- Network (VPC, subnets, security groups)
+- ECR (container registries)
+- Database (RDS PostgreSQL)
+- CodeBuild (CI/CD pipeline)
+
+#### Build Docker Images
+
+Trigger CodeBuild to build and push Docker images to ECR:
+
+```bash
+aws codebuild start-build --project-name assitech-blog-build --region eu-west-3
+```
+
+Wait for the build to complete (monitor in AWS Console: CodeBuild → Build projects → assitech-blog-build):
+
+```bash
+# Check build status (wait for SUCCEEDED)
+aws codebuild list-builds-for-project --project-name assitech-blog-build --region eu-west-3 --query 'ids[0]' --output text | xargs -I {} aws codebuild batch-get-builds --ids {} --region eu-west-3 --query 'builds[0].buildStatus' --output text
+```
+
+#### Phase 2: Deploy compute stack AFTER images are ready
+
+```bash
+npx cdk deploy assitech-compute-prod --require-approval never
+```
+
+> **Why two phases?** The EC2 user-data script runs on first boot and tries to pull Docker images from ECR. If images don't exist yet, the script fails and containers won't start. By building images first, the EC2 instance can successfully pull and run them on startup.
 
 ## Post-Deployment
 
@@ -489,6 +528,71 @@ du -sh /var/lib/docker
 
 # Increase EBS volume (modify compute-stack.ts)
 allocatedStorage: 50  # GB
+```
+
+## Redeployment (Fresh Start)
+
+If you need to completely redeploy the infrastructure from scratch (e.g., to reset the database or fix deployment issues):
+
+### Step 1: Destroy All Stacks
+
+```bash
+cd infra
+npx cdk destroy --all --force
+```
+
+This removes all CloudFormation stacks. Note that ECR repositories and RDS snapshots may be retained.
+
+### Step 2: Clean Up Retained Resources (Optional)
+
+If you want a completely clean slate, delete retained ECR repositories:
+
+```bash
+aws ecr delete-repository --repository-name assitech-backend --force --region eu-west-3
+aws ecr delete-repository --repository-name assitech-frontend --force --region eu-west-3
+```
+
+### Step 3: Redeploy Using Two-Phase Process
+
+Follow the same two-phase deployment process as initial deployment:
+
+#### Phase 1: Deploy infrastructure WITHOUT compute stack
+
+```bash
+npx cdk deploy assitech-network-prod assitech-ecr-prod assitech-database-prod assitech-codebuild-prod --require-approval never
+```
+
+#### Build Docker Images
+
+Trigger CodeBuild to build and push images:
+
+```bash
+aws codebuild start-build --project-name assitech-blog-build --region eu-west-3
+```
+
+Wait for the build to complete (check in AWS Console: CodeBuild → Build projects → assitech-blog-build → Build history, or use the CLI command from Step 4).
+
+#### Phase 2: Deploy compute stack AFTER images are ready
+
+```bash
+npx cdk deploy assitech-compute-prod --require-approval never
+```
+
+### Step 4: Verify Deployment
+
+```bash
+# Get the EC2 instance IP from the deployment output, then:
+ssh -i your-keypair.pem ec2-user@your-instance-ip
+
+# Check containers are running
+sudo docker ps
+
+# Check backend health
+curl http://localhost:3000/health
+
+# Check logs if needed
+sudo docker logs assitech-backend
+sudo docker logs assitech-frontend
 ```
 
 ## Cleanup

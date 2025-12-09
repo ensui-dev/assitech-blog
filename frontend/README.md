@@ -19,6 +19,7 @@ React + Vite frontend for the AI-generated blog application with admin dashboard
 - **Build Tool**: Vite 5
 - **Routing**: React Router DOM 6
 - **HTTP Client**: Axios
+- **Markdown**: React Markdown
 - **State Management**: React Context API
 - **Production Server**: Nginx
 
@@ -75,8 +76,10 @@ cp .env.example .env
 
 3. Configure environment variables in `.env`:
 ```bash
-# Backend API URL (defaults to http://localhost:3000)
-VITE_API_URL=http://localhost:3000
+# Backend API URL
+# For local development with separate backend: VITE_API_URL=http://localhost:3000
+# For production (uses nginx proxy): leave empty or omit
+VITE_API_URL=
 ```
 
 4. Start development server:
@@ -303,9 +306,9 @@ The Docker image uses Nginx to:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `VITE_API_URL` | `http://localhost:3000` | Backend API base URL |
+| `VITE_API_URL` | (empty) | Backend API base URL. Leave empty for production (nginx proxy) |
 
-Note: In Docker/production, the Nginx config proxies `/api` to the backend container, so `VITE_API_URL` is not needed.
+Note: In Docker/production, the Nginx config proxies `/api` to the backend container. For local development with separate backend, set `VITE_API_URL=http://localhost:3000`.
 
 ## Development
 
@@ -339,6 +342,6 @@ Styles are in `src/styles/App.css` using standard CSS:
 
 For development/testing:
 - **Email**: `admin@assitech.challenge`
-- **Password**: `admin123`
+- **Password**: `Admin123@`
 
 (Configure via backend environment variables)

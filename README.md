@@ -4,7 +4,7 @@ A full-stack auto-generated blog application powered by AI, built with React, No
 
 ## Features
 
-- **AI-Powered Content**: Automatically generates tech articles using HuggingFace's free Mistral model
+- **AI-Powered Content**: Automatically generates tech articles using HuggingFace's Llama 3.1-8B model (free tier)
 - **Daily Automation**: Generates one new article every day using node-cron
 - **Modern Stack**: React + Vite frontend, Node.js + Express backend, PostgreSQL database
 - **Containerized**: Fully Dockerized application with Docker Compose support
@@ -18,6 +18,7 @@ A full-stack auto-generated blog application powered by AI, built with React, No
 - **Vite** - Build tool and dev server
 - **React Router** - Client-side routing
 - **Axios** - HTTP client
+- **React Markdown** - Markdown rendering
 - **Nginx** - Production web server
 
 ### Backend
@@ -25,7 +26,8 @@ A full-stack auto-generated blog application powered by AI, built with React, No
 - **Express** - Web framework
 - **PostgreSQL 16** - Database
 - **node-cron** - Job scheduling
-- **HuggingFace API** - AI text generation
+- **HuggingFace API** - AI text generation (Llama 3.1-8B)
+- **Unsplash API** - Article images
 
 ### Infrastructure
 - **Docker** - Containerization
@@ -41,57 +43,99 @@ A full-stack auto-generated blog application powered by AI, built with React, No
 
 ```
 AssiTech/
-├── backend/                  # Node.js backend application
+├── backend/                      # Node.js backend application
 │   ├── src/
-│   │   ├── config/          # Database and app configuration
-│   │   ├── models/          # Database models
-│   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic (AI client, cron jobs)
-│   │   ├── utils/           # Utility functions (DB initialization)
-│   │   └── index.js         # Application entry point
+│   │   ├── config/
+│   │   │   └── database.js       # PostgreSQL connection config
+│   │   ├── middleware/
+│   │   │   └── auth.js           # JWT authentication middleware
+│   │   ├── models/
+│   │   │   ├── Article.js        # Article database model
+│   │   │   └── User.js           # User database model
+│   │   ├── routes/
+│   │   │   ├── admin.js          # Admin API routes
+│   │   │   ├── articles.js       # Article CRUD routes
+│   │   │   └── auth.js           # Authentication routes
+│   │   ├── services/
+│   │   │   ├── aiClient.js       # HuggingFace API integration
+│   │   │   ├── articleJob.js     # Cron job for article generation
+│   │   │   └── unsplashClient.js # Unsplash API for images
+│   │   ├── utils/
+│   │   │   ├── initDb.js         # Database initialization
+│   │   │   └── reseedDb.js       # Database reseeding utility
+│   │   └── index.js              # Application entry point
+│   ├── .env.example
 │   ├── Dockerfile
 │   ├── package.json
 │   └── README.md
 │
-├── frontend/                 # React frontend application
+├── frontend/                     # React frontend application
 │   ├── src/
-│   │   ├── api/             # API client
-│   │   ├── components/      # Reusable UI components
-│   │   ├── pages/           # Page components
-│   │   ├── styles/          # CSS styles
-│   │   ├── App.jsx          # Main app component
-│   │   └── main.jsx         # Entry point
+│   │   ├── api/
+│   │   │   └── client.js         # Axios API client
+│   │   ├── components/
+│   │   │   ├── ArticleCard.jsx   # Article preview card
+│   │   │   ├── ErrorMessage.jsx  # Error display component
+│   │   │   ├── Header.jsx        # Navigation header
+│   │   │   ├── Loading.jsx       # Loading spinner
+│   │   │   └── ProtectedRoute.jsx# Auth route wrapper
+│   │   ├── contexts/
+│   │   │   └── AuthContext.jsx   # Authentication state
+│   │   ├── pages/
+│   │   │   ├── admin/
+│   │   │   │   ├── ArticleEditor.jsx    # Create/edit articles
+│   │   │   │   ├── ArticleGenerator.jsx # AI article generator
+│   │   │   │   ├── ArticleManagement.jsx# Article list management
+│   │   │   │   └── DatabaseManager.jsx  # Database admin tools
+│   │   │   ├── AdminDashboard.jsx       # Admin home page
+│   │   │   ├── ArticleDetail.jsx        # Single article view
+│   │   │   ├── Home.jsx                 # Public home page
+│   │   │   └── Login.jsx                # Admin login page
+│   │   ├── styles/
+│   │   │   └── App.css           # Global styles
+│   │   ├── App.jsx               # Main app with routing
+│   │   └── main.jsx              # React entry point
+│   ├── .env.example
 │   ├── Dockerfile
-│   ├── nginx.conf           # Nginx configuration
+│   ├── index.html
+│   ├── nginx.conf                # Production nginx config
 │   ├── package.json
-│   └── README.md
+│   ├── README.md
+│   └── vite.config.js
 │
-├── infra/                    # AWS CDK Infrastructure
+├── infra/                        # AWS CDK Infrastructure
 │   ├── bin/
-│   │   └── app.ts           # CDK app entry point
+│   │   └── app.ts                # CDK app entry point
 │   ├── lib/
-│   │   ├── network-stack.ts # VPC, subnets, security groups
-│   │   ├── ecr-stack.ts     # Container registries
-│   │   ├── codebuild-stack.ts# CI/CD pipeline
-│   │   ├── database-stack.ts# RDS PostgreSQL
-│   │   └── compute-stack.ts # EC2 instance
+│   │   ├── network-stack.ts      # VPC, subnets, security groups
+│   │   ├── ecr-stack.ts          # Container registries
+│   │   ├── codebuild-stack.ts    # CI/CD build pipeline
+│   │   ├── database-stack.ts     # RDS PostgreSQL
+│   │   └── compute-stack.ts      # EC2 instance
 │   ├── scripts/
-│   │   ├── build-and-push.sh# Build and push Docker images
-│   │   └── user-data.sh     # EC2 initialization
+│   │   ├── build-and-push.sh     # Docker build script
+│   │   ├── deploy.sh             # Deployment automation
+│   │   ├── init-ec2.sh           # EC2 setup script
+│   │   └── user-data.sh          # EC2 cloud-init
+│   ├── .env.example
+│   ├── buildspec.yml             # CodeBuild specification
+│   ├── cdk.json
 │   ├── package.json
-│   ├── README.md            # Detailed deployment guide
-│   └── QUICKSTART.md        # Quick deployment guide
+│   ├── README.md
+│   └── tsconfig.json
 │
-├── docs/                     # Documentation
-│   ├── README.md            # Documentation index
-│   ├── ARCHITECTURE.md      # System architecture
-│   ├── deployment/          # Deployment guides
-│   └── reference/           # Reference guides
+├── docs/                         # Documentation
+│   ├── deployment/
+│   │   ├── AWS_DEPLOYMENT.md     # AWS deployment guide
+│   │   └── LOCAL_DEPLOYMENT.md   # Local setup guide
+│   ├── ARCHITECTURE.md           # System architecture
+│   └── README.md                 # Documentation index
 │
-├── docker-compose.yml        # Local development orchestration
-├── CHALLENGE.md              # Original challenge requirements
-├── SUBMISSION_CHECKLIST.md   # Pre-submission checklist
-└── README.md                 # This file
+├── .env.example                  # Root environment template
+├── docker-compose.yml            # Local development orchestration
+├── CHALLENGE.md                  # Original challenge requirements
+├── SUBMISSION_CHECKLIST.md       # Pre-submission checklist
+└── README.md                     # This file
 ```
 
 ## Getting Started
@@ -272,13 +316,23 @@ POSTGRES_USER=bloguser
 POSTGRES_PASSWORD=blogpassword
 POSTGRES_DB=blogdb
 HUGGINGFACE_API_KEY=your_key_here
-HUGGINGFACE_MODEL=mistralai/Mistral-7B-Instruct-v0.1
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct
+UNSPLASH_ACCESS_KEY=your_unsplash_key_here
+JWT_SECRET=your-secret-key
+ADMIN_EMAIL=admin@assitech.challenge
+ADMIN_PASSWORD=Admin123@
 ARTICLE_GENERATION_CRON=0 2 * * *
 ```
 
 ### Frontend (.env)
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_API_URL=   # Leave empty for production (uses nginx proxy)
+```
+
+### Admin Credentials (Production)
+```
+Email: admin@assitech.challenge
+Password: Admin123@
 ```
 
 ## Features & Implementation
@@ -287,18 +341,19 @@ VITE_API_URL=http://localhost:3000
 
 The system uses **node-cron** to automatically generate one new article every day at 2 AM (configurable). The cron job:
 
-1. Selects a random tech topic from a predefined list
+1. Generates a unique tech topic using AI (or falls back to predefined list)
 2. Calls HuggingFace API to generate article content
 3. Generates a summary of the article
-4. Saves to PostgreSQL database
-5. Falls back to template articles if API fails
+4. Fetches a relevant image from Unsplash API
+5. Saves to PostgreSQL database
+6. Falls back to template articles if API fails
 
 ### AI Integration
 
-Uses HuggingFace's free Inference API with the Mistral-7B-Instruct model:
-- Zero cost
-- No rate limits for reasonable usage
-- Generates high-quality tech content
+Uses HuggingFace's Inference API with Llama 3.1-8B-Instruct model via OpenAI-compatible endpoint:
+- Free tier with monthly credits
+- High-quality text generation
+- OpenAI-compatible chat completions API (`router.huggingface.co/v1/chat/completions`)
 - Includes fallback mechanism for reliability
 
 ### Database Schema
@@ -309,9 +364,19 @@ CREATE TABLE articles (
   title VARCHAR(255) NOT NULL,
   content TEXT NOT NULL,
   summary TEXT,
+  image_url TEXT,
   author VARCHAR(100) DEFAULT 'AI Writer',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  username VARCHAR(100) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'user',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 ```
 
@@ -381,51 +446,39 @@ docker logs assitech-frontend
 curl http://localhost:3000/health
 ```
 
-## Cost Estimation (AWS)
-
-- **EC2 t2.micro**: Free tier eligible (750 hours/month)
-- **ECR Storage**: ~$0.10/GB/month (minimal for 2 images)
-- **CodeBuild**: 100 build minutes/month free
-- **Data Transfer**: Minimal costs for personal use
-- **HuggingFace API**: $0 (free tier)
-
-**Total Monthly Cost**: ~$0-5 (mostly free tier)
-
 ## Documentation
 
 Complete documentation is available in the [docs/](docs/) directory:
 
 ### Main Guides
-- **[Documentation Index](docs/README.md)** - Complete documentation overview
-- **[Architecture](docs/ARCHITECTURE.md)** - System design and architecture
-- **[AWS Deployment](docs/deployment/AWS_DEPLOYMENT.md)** - Complete deployment guide
-- **[Deployment Summary](docs/deployment/DEPLOYMENT_SUMMARY.md)** - Implementation overview
+- **[Documentation Index](docs/README.md)** - Complete documentation overview and quick links
+- **[Architecture](docs/ARCHITECTURE.md)** - System design, data flow, and component interactions
+
+### Deployment Guides
+- **[AWS Deployment](docs/deployment/AWS_DEPLOYMENT.md)** - Full AWS deployment walkthrough with CDK
+- **[Local Deployment](docs/deployment/LOCAL_DEPLOYMENT.md)** - Local development setup with Docker
+
+### Component Documentation
+- **[Backend README](backend/README.md)** - API endpoints, services, and backend architecture
+- **[Frontend README](frontend/README.md)** - React components, routing, and styling
+- **[Infrastructure README](infra/README.md)** - AWS CDK stacks, resources, and deployment scripts
 
 ### Quick References
-- **[Challenge Requirements](CHALLENGE.md)** - Original challenge specifications
-- **[Submission Checklist](SUBMISSION_CHECKLIST.md)** - Pre-submission verification
-- **[Infrastructure Quick Start](infra/QUICKSTART.md)** - 5-step deployment
-- **[WSL Troubleshooting](docs/reference/TROUBLESHOOTING_WSL.md)** - Docker on Windows/WSL
-
-### Component Docs
-- **[Backend README](backend/README.md)** - Backend API documentation
-- **[Frontend README](frontend/README.md)** - Frontend documentation
-- **[Infrastructure README](infra/README.md)** - Infrastructure documentation
+- **[infra/QUICKSTART.md](infra/QUICKSTART.md)** - 6-step quick deployment guide
+- **[CHALLENGE.md](CHALLENGE.md)** - Original challenge requirements
+- **[SUBMISSION_CHECKLIST.md](SUBMISSION_CHECKLIST.md)** - Pre-submission verification list
 
 ## Future Improvements
 
-- Add user authentication and admin panel
-- Implement article editing and deletion
+- Add HTTPS with Let's Encrypt
+- Implement caching with Redis
 - Add categories and tags
 - Include search functionality
-- Implement caching with Redis
-- Add SSL/HTTPS with Let's Encrypt
-- Set up CloudWatch monitoring
+- Set up CloudWatch alarms
 - Implement automated backups
 - Add comment system
 - Improve AI prompts for better content
 - Add more diverse topics
-- Implement article images/thumbnails
 
 ## Contributing
 

@@ -95,7 +95,7 @@ POSTGRES_DB=blogdb
 
 # HuggingFace API (required for AI generation)
 HUGGINGFACE_API_KEY=hf_your_key_here
-HUGGINGFACE_MODEL=microsoft/Phi-3-mini-4k-instruct
+HUGGINGFACE_MODEL=meta-llama/Llama-3.1-8B-Instruct
 
 # Unsplash API (optional - for article images)
 UNSPLASH_ACCESS_KEY=your_unsplash_key_here
@@ -105,7 +105,7 @@ JWT_SECRET=your-super-secret-jwt-key
 
 # Admin User (for initial setup)
 ADMIN_EMAIL=admin@assitech.challenge
-ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=Admin123@
 
 # Cron Schedule (default: daily at 2 AM)
 ARTICLE_GENERATION_CRON=0 2 * * *
@@ -387,8 +387,8 @@ Reseed database with new AI-generated articles
 
 Used for AI-powered article generation.
 
-- **Model**: `microsoft/Phi-3-mini-4k-instruct` (configurable)
-- **Endpoint**: HuggingFace Inference API
+- **Model**: `meta-llama/Llama-3.1-8B-Instruct` (configurable)
+- **Endpoint**: OpenAI-compatible chat completions (`router.huggingface.co/v1/chat/completions`)
 - **Features**:
   - Generate full articles with title, content, and summary
   - Generate topic suggestions
@@ -494,7 +494,7 @@ curl http://localhost:3000/api/articles
 # Login
 curl -X POST http://localhost:3000/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@assitech.challenge","password":"admin123"}'
+  -d '{"email":"admin@assitech.challenge","password":"Admin123@"}'
 
 # Generate article (with token)
 curl -X POST http://localhost:3000/api/articles/generate \

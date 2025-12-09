@@ -91,7 +91,7 @@ function DatabaseManager() {
             <li>Deletes all existing articles from the database</li>
             <li>Generates 3 new articles with random topics using AI</li>
             <li>Each reseed produces completely different content</li>
-            <li>Uses HuggingFace AI (Microsoft Phi-3 model) for generation</li>
+            <li>Uses HuggingFace AI (Llama 3.1-8B model) for generation</li>
             <li>Takes approximately 30-60 seconds to complete</li>
             <li>Admin user accounts are not affected</li>
             <li>Useful for testing or refreshing demo content</li>

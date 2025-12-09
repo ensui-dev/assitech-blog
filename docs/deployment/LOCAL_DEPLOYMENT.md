@@ -78,7 +78,7 @@ JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 
 # Admin credentials (for first login)
 ADMIN_EMAIL=admin@assitech.challenge
-ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=Admin123@
 ```
 
 ### 3. Start Application
@@ -105,7 +105,7 @@ This command:
 
 **Default Admin Credentials:**
 - Email: `admin@assitech.challenge`
-- Password: `admin123`
+- Password: `Admin123@`
 
 ## Detailed Configuration
 
@@ -145,7 +145,7 @@ JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
 # Admin User (for initial setup)
 # ===========================================
 ADMIN_EMAIL=admin@assitech.challenge
-ADMIN_PASSWORD=admin123
+ADMIN_PASSWORD=Admin123@
 ```
 
 ### Getting API Keys

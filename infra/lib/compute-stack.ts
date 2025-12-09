@@ -32,10 +32,10 @@ export class AssitechComputeStack extends cdk.Stack {
       description: 'AssiTech application environment variables',
       secretObjectValue: {
         HUGGINGFACE_API_KEY: cdk.SecretValue.unsafePlainText(process.env.HUGGINGFACE_API_KEY || ''),
-        HUGGINGFACE_MODEL: cdk.SecretValue.unsafePlainText(process.env.HUGGINGFACE_MODEL || 'microsoft/Phi-3-mini-4k-instruct'),
+        HUGGINGFACE_MODEL: cdk.SecretValue.unsafePlainText(process.env.HUGGINGFACE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct'),
         UNSPLASH_ACCESS_KEY: cdk.SecretValue.unsafePlainText(process.env.UNSPLASH_ACCESS_KEY || ''),
         JWT_SECRET: cdk.SecretValue.unsafePlainText(process.env.JWT_SECRET || ''),
-        ADMIN_EMAIL: cdk.SecretValue.unsafePlainText(process.env.ADMIN_EMAIL || 'admin@assitech.com'),
+        ADMIN_EMAIL: cdk.SecretValue.unsafePlainText(process.env.ADMIN_EMAIL || 'admin@assitech.challenge'),
         ADMIN_PASSWORD: cdk.SecretValue.unsafePlainText(process.env.ADMIN_PASSWORD || ''),
         ARTICLE_GENERATION_CRON: cdk.SecretValue.unsafePlainText(process.env.ARTICLE_GENERATION_CRON || '0 2 * * *'),
       },

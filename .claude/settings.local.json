@@ -1,17 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(tree:*)",
-      "Bash(wc:*)",
-      "Bash(ls:*)",
-      "Bash(sudo docker exec assitech-backend npm run init-db:*)",
-      "Bash(docker exec:*)",
-      "Bash(docker-compose up:*)",
-      "Bash(docker-compose down:*)",
+      "Bash(aws ecr describe-repositories:*)",
+      "Bash(npx cdk deploy:*)",
+      "Bash(aws cloudformation describe-stack-events:*)",
+      "Bash(npx cdk:*)",
       "Bash(curl:*)",
-      "Bash(docker-compose restart:*)",
-      "Bash(docker logs:*)",
-      "Bash(*)"
+      "Bash(where:*)",
+      "Bash(/c/Program Files/Amazon/AWSCLIV2/aws --version)",
+      "Bash(/mnt/c/Program Files/Amazon/AWSCLIV2/aws.exe --version)",
+      "Bash(cmd.exe /c \"aws --version\")"
     ],
     "deny": [],
     "ask": []

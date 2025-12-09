@@ -300,15 +300,15 @@ CREATE INDEX idx_articles_created_at ON articles(created_at DESC);
 
 ### AI Integration Layer
 
-**Technology**: HuggingFace Inference API
+**Technology**: HuggingFace Inference API (OpenAI-compatible endpoint)
 
-**Model**: microsoft/Phi-3-mini-4k-instruct
+**Model**: meta-llama/Llama-3.1-8B-Instruct
 
 **Implementation**:
 ```javascript
 aiClient.generateArticle()
     ↓
-1. Select random topic from predefined list
+1. Generate unique topic using AI (or fallback to predefined list)
     ↓
 2. Construct prompt for article generation
     ↓
