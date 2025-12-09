@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import { adminApi } from '../../api/client';
 
 function DatabaseManager() {
   const [loading, setLoading] = useState(false);
@@ -14,18 +14,8 @@ function DatabaseManager() {
     setShowConfirmation(false);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:3000'}/api/admin/reseed`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      setSuccess(response.data.message || 'Database reseeded successfully with new AI-generated articles!');
+      const response = await adminApi.reseed();
+      setSuccess(response.message || 'Database reseeded successfully with new AI-generated articles!');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to reseed database');
     } finally {

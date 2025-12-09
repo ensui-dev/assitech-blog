@@ -79,4 +79,12 @@ export const articlesApi = {
   },
 };
 
+// Admin API
+export const adminApi = {
+  reseed: async () => {
+    const response = await apiClient.post('/api/admin/reseed');
+    return response.data;
+  },
+};
+
 export default apiClient;

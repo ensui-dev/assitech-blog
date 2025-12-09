@@ -206,7 +206,7 @@ function ArticleGenerator() {
           <li>Enter a custom topic or select from AI-generated suggestions</li>
           <li>Click "Generate Article" to create an article about your chosen topic</li>
           <li>Click "Generate Random Article" for a surprise topic</li>
-          <li>Articles are generated using HuggingFace AI (Mistral-7B model)</li>
+          <li>Articles are generated using HuggingFace AI (Llama 3.1-8B model)</li>
           <li>Images are automatically fetched from Unsplash based on the topic</li>
           <li>Generation typically takes 10-30 seconds</li>
           <li>Articles can be edited after generation</li>
