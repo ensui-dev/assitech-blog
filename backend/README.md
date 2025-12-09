@@ -22,6 +22,20 @@ Auto-generated blog backend with AI integration using Node.js, Express, and Post
 - **Image API**: Unsplash API
 - **Scheduling**: node-cron
 
+## Database Connection
+
+The backend automatically configures the PostgreSQL connection based on the environment:
+
+- **Local Development** (Docker Compose): SSL disabled - connects to local `postgres` container
+- **AWS Production** (RDS): SSL enabled with `rejectUnauthorized: false` for AWS RDS compatibility
+
+SSL is automatically disabled when connecting to:
+- `localhost`
+- `postgres` (Docker container name)
+- `127.0.0.1`
+
+This ensures seamless operation in both local development and AWS production environments without manual configuration.
+
 ## Project Structure
 
 ```

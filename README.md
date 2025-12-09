@@ -431,14 +431,6 @@ Complete documentation is available in the [docs/](docs/) directory:
 
 This is a technical challenge submission. If you're evaluating it, thank you for your time!
 
-## License
-
-MIT License - See LICENSE file for details
-
 ## Contact
 
 For questions or feedback about this implementation, please reach out via the submission email.
-
----
-
-**Built with ❤️ for the AssiTech Technical Challenge**

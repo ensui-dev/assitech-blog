@@ -260,6 +260,22 @@ Client Response
 
 **Technology**: PostgreSQL 16
 
+**Connection Configuration**:
+
+The database connection automatically handles SSL based on the host:
+
+| Environment | Host | SSL | Reason |
+|-------------|------|-----|--------|
+| Local (Docker) | `postgres` | Disabled | Local PostgreSQL doesn't support SSL |
+| Local (native) | `localhost` | Disabled | Local PostgreSQL doesn't support SSL |
+| AWS (RDS) | `*.rds.amazonaws.com` | Enabled | AWS RDS requires SSL connections |
+
+This is handled in `backend/src/config/database.js`:
+```javascript
+const isLocalDb = host === 'localhost' || host === 'postgres' || host === '127.0.0.1';
+const useSSL = isProduction && !isLocalDb;
+```
+
 **Schema**:
 ```sql
 CREATE TABLE articles (

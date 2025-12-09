@@ -8,6 +8,11 @@ const { Pool } = pg;
 const isProduction = process.env.NODE_ENV === 'production';
 const host = process.env.POSTGRES_HOST || 'localhost';
 
+// Determine if SSL should be enabled
+// SSL is required for AWS RDS but not for local/docker PostgreSQL
+const isLocalDb = host === 'localhost' || host === 'postgres' || host === '127.0.0.1';
+const useSSL = isProduction && !isLocalDb;
+
 const pool = new Pool({
   host: host,
   port: process.env.POSTGRES_PORT || 5432,
@@ -18,7 +23,7 @@ const pool = new Pool({
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   // Enable SSL for production connections (required by AWS RDS)
-  ssl: isProduction && host !== 'localhost' ? { rejectUnauthorized: false } : false,
+  ssl: useSSL ? { rejectUnauthorized: false } : false,
 });
 
 // Test connection
