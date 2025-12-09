@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { articlesApi } from '../api/client';
 import Loading from '../components/Loading';
 import ErrorMessage from '../components/ErrorMessage';
@@ -59,7 +60,9 @@ function ArticleDetail() {
           <span className="article-author">By {article.author}</span>
           <span className="article-date">{formatDate(article.created_at)}</span>
         </div>
-        <div className="article-content">{article.content}</div>
+        <div className="article-content">
+          <ReactMarkdown>{article.content}</ReactMarkdown>
+        </div>
       </article>
     </div>
   );
