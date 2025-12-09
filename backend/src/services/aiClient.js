@@ -4,9 +4,9 @@ import unsplashClient from './unsplashClient.js';
 
 dotenv.config();
 
-const HUGGINGFACE_API_URL = 'https://api-inference.huggingface.co/models/';
+const HUGGINGFACE_API_URL = 'https://router.huggingface.co/hf-inference/models/';
 const API_KEY = process.env.HUGGINGFACE_API_KEY;
-const MODEL = process.env.HUGGINGFACE_MODEL || 'mistralai/Mistral-7B-Instruct-v0.1';
+const MODEL = process.env.HUGGINGFACE_MODEL || 'meta-llama/Llama-3.1-8B-Instruct';
 
 class AIClient {
   constructor() {
