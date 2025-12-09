@@ -803,6 +803,18 @@ body {
   margin-bottom: 2rem;
 }
 
+.editor-form .button-secondary {
+  background: #6c757d;
+  color: #fff;
+  border: 1px solid #6c757d;
+}
+
+.editor-form .button-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+  color: #fff;
+}
+
 .form-hint {
   font-size: 0.85rem;
   color: #666;
@@ -977,6 +989,18 @@ body {
   border-radius: 8px;
   padding: 1.5rem;
   margin-top: 1rem;
+}
+
+.confirmation-box .button-secondary {
+  background: #6c757d;
+  color: #fff;
+  border: 1px solid #6c757d;
+}
+
+.confirmation-box .button-secondary:hover {
+  background: #5a6268;
+  border-color: #5a6268;
+  color: #fff;
 }
 
 .warning-text {
