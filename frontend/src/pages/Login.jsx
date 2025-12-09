@@ -67,7 +67,7 @@ function Login() {
         </form>
 
         <p className="login-hint">
-          Default credentials: admin@assitech.com / admin123
+          Default credentials: admin@assitech.challenge / Admin123@
         </p>
       </div>
     </div>
